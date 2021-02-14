@@ -954,7 +954,9 @@ public ResponseEntity<Object> sendMoneyToDeposit(TransferTransactionRequest requ
 
    Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüzü ile oluşturulan controllerlarımıza göz atalım.
 
-![swagger_1](C:\Users\Burak\Desktop\swagger_1.PNG)
+
+
+
 
 - 5 adet controllerımız mevcuttur.
 - Customer Controller
@@ -963,34 +965,34 @@ public ResponseEntity<Object> sendMoneyToDeposit(TransferTransactionRequest requ
 
 - Deposit Account Controller
 
-![swagger_3](C:\Users\Burak\Desktop\swagger_3.PNG)
+![swagger_3](https://user-images.githubusercontent.com/33039466/107887953-d77c1c00-6f1a-11eb-8d08-052767cce6c0.PNG)
 
 - Saving Account Controller
 
-![swagger_4](C:\Users\Burak\Desktop\swagger_4.PNG)
+![swagger_4](https://user-images.githubusercontent.com/33039466/107887955-d814b280-6f1a-11eb-9ca2-d7e6f9c5be1b.PNG)
 
 - Credit Card Controller
 
-![swagger_5](C:\Users\Burak\Desktop\swagger_5.PNG)
+![swagger_5](https://user-images.githubusercontent.com/33039466/107887956-d814b280-6f1a-11eb-8cfe-fcde7a2392cb.PNG)
 
 - Debit Card Controller
 
-![swagger_6](C:\Users\Burak\Desktop\swagger_6.PNG)
+![swagger_6](https://user-images.githubusercontent.com/33039466/107887957-d8ad4900-6f1a-11eb-94ec-4a2b3f892fab.PNG)
 
 ### Examples
 
-![swagger_7](swagger_7.PNG)
+![swagger_7](https://user-images.githubusercontent.com/33039466/107887958-d8ad4900-6f1a-11eb-869f-830295434e2b.PNG)
 
-![swagger_8](swagger_8.PNG)
+![swagger_8](https://user-images.githubusercontent.com/33039466/107887959-d945df80-6f1a-11eb-9b43-ad387d048c34.PNG)
 
-![swagger_9](swagger_9.PNG)
+![swagger_9](https://user-images.githubusercontent.com/33039466/107887960-d945df80-6f1a-11eb-94d3-9131fad66249.PNG)
 
-![swagger_10](swagger_10.PNG)
+![swagger_10](https://user-images.githubusercontent.com/33039466/107887961-d9de7600-6f1a-11eb-8448-71075d72808c.PNG)
 
-![swagger_11](swagger_11.PNG)
+![swagger_11](https://user-images.githubusercontent.com/33039466/107887962-d9de7600-6f1a-11eb-92c5-1a422cfbf743.PNG)
 
-![swagger_12](swagger_12.PNG)
+![swagger_12](https://user-images.githubusercontent.com/33039466/107887963-da770c80-6f1a-11eb-9c76-3c55f06005df.PNG)
 
-![swagger_13](swagger_13.PNG)
+![swagger_13](https://user-images.githubusercontent.com/33039466/107887964-da770c80-6f1a-11eb-80fa-e681d5cb16de.PNG)
 
-![swagger_14](swagger_14.PNG)
+![swagger_14](https://user-images.githubusercontent.com/33039466/107887965-da770c80-6f1a-11eb-9d00-2848e5212992.PNG)
