@@ -2,7 +2,7 @@
 
 ## Uygulamaya Giriş
 
- 		Bu projede bir online bankacılık sisteminin backend servisleri yazılmıştır.Uygulama kapsamında bir bankacılık operasyon servisinin yerine getirdiği temel işlemler olan:
+    Bu projede bir online bankacılık sisteminin backend servisleri yazılmıştır.Uygulama kapsamında bir bankacılık operasyon servisinin yerine getirdiği temel işlemler olan:
 
 - **Müşteri Yönetimi**
 
@@ -959,7 +959,7 @@ public ResponseEntity<Object> sendMoneyToDeposit(TransferTransactionRequest requ
 - 5 adet controllerımız mevcuttur.
 - Customer Controller
 
-![swagger_2](C:\Users\Burak\Desktop\swagger_2.PNG)
+![swagger_2](https://user-images.githubusercontent.com/33039466/107887949-cc28f080-6f1a-11eb-9c1f-316b7b18a074.PNG)
 
 - Deposit Account Controller
 
