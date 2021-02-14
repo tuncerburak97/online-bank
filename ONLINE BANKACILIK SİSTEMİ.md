@@ -954,9 +954,7 @@ public ResponseEntity<Object> sendMoneyToDeposit(TransferTransactionRequest requ
 
    Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüzü ile oluşturulan controllerlarımıza göz atalım.
 
-
-
-
+![swagger_1](https://user-images.githubusercontent.com/33039466/107887947-c29f8880-6f1a-11eb-80f8-c20df673714b.PNG)
 
 - 5 adet controllerımız mevcuttur.
 - Customer Controller
