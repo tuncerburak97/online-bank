@@ -2,7 +2,7 @@
 
 ## Uygulamaya Giriş
 
-    Bu projede bir online bankacılık sisteminin backend servisleri yazılmıştır.Uygulama kapsamında bir bankacılık operasyon servisinin yerine getirdiği temel işlemler olan:
+   Bu projede bir online banka sisteminin backend servisleri yazılmıştır.Aşağıda temel fonksyionlar belirtilmiştir.
 
 - **Müşteri Yönetimi**
 
