@@ -32,7 +32,7 @@
 
 Uygulamanın ilk adımı olarak entity sınıfları oluşturulmuş ve aralarındaki ilişki tanımlanmıştır.Bu sınıfların ER diyagramı aşağıda görmekteyiz.
 
-![database_schema_last](C:\Users\Burak\Desktop\database_schema_last.png)##
+![database_schema_last](https://user-images.githubusercontent.com/33039466/107887881-4147f600-6f1a-11eb-9700-479a633aae0c.png)
 
 ​		Uygulamamızın entity sınıflarının oluşturulma sırası aşağıdaki gibidir.
 
