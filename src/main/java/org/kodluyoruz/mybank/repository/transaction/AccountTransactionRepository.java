@@ -1,6 +1,5 @@
 package org.kodluyoruz.mybank.repository.transaction;
 
-import org.kodluyoruz.mybank.entity.Customer;
 import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

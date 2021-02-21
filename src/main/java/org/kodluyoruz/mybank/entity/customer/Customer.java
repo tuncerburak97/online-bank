@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.entity;
+package org.kodluyoruz.mybank.entity.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -32,6 +32,9 @@ public class Customer {
     private String gender;
     private String identificationNumber;
     private double asset;
+
+    @JsonIgnore
+    private int creditPoint;
 
     @Version
     private long version;

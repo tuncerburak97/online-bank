@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 
 import javax.persistence.*;
 

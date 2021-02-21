@@ -14,8 +14,7 @@ public interface SavingAccountRepository extends AccountRepository {
     SavingAccount findByIbanNo(String ibanNo);
     SavingAccount findByCustomerId(long id);
 
+    SavingAccount findByAccountId(long id);
     Account findByAccountTypeAndAccountId(String type,long id);
-
-
     List<Account> findByAccountType(String accountType);
 }

@@ -1,7 +1,11 @@
 package org.kodluyoruz.mybank.controller;
 
 
-import org.kodluyoruz.mybank.entity.Customer;
+import javassist.NotFoundException;
+import org.kodluyoruz.mybank.entity.customer.Customer;
+import org.kodluyoruz.mybank.entity.operation.SystemOperations;
+import org.kodluyoruz.mybank.repository.CustomerRepository;
+import org.kodluyoruz.mybank.repository.SystemOperationsRepository;
 import org.kodluyoruz.mybank.request.customer.create.CreateCustomerRequest;
 import org.kodluyoruz.mybank.request.customer.update.UpdateAddress;
 import org.kodluyoruz.mybank.request.customer.update.UpdateEmail;
@@ -20,6 +24,12 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private SystemOperationsRepository systemOperationsRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @PostMapping("/create")
     public ResponseEntity<Object> create(@RequestBody CreateCustomerRequest request) throws Exception {
         return customerService.create(request);
@@ -30,7 +40,7 @@ public class CustomerController {
         return customerService.findAll();
     }
 
-    @DeleteMapping("/deleteById/{id}")
+    @DeleteMapping("/delete/ById/{id}")
     private ResponseEntity<Object> deleteById(@PathVariable long id){
         return customerService.deleteCustomer(id);
     }
@@ -47,6 +57,16 @@ public class CustomerController {
     @PutMapping("/update/address/{id}")
     private ResponseEntity<Object> updateAddress(@RequestBody UpdateAddress address, @PathVariable long id){
         return customerService.updateAddress(address,id);
+    }
+
+    @GetMapping("/list/customerOperation/{customer_id}")
+    private List<SystemOperations> getCustomerOperations(@PathVariable long customer_id) throws NotFoundException {
+
+        Customer customer = customerRepository.findById(customer_id);
+        if(customer==null)
+            throw new NotFoundException("Customer not found");
+
+        return systemOperationsRepository.findByCustomer(customer);
     }
 
 

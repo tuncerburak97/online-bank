@@ -97,4 +97,9 @@ public class CreditCardController {
         }
     }
 
+    @GetMapping("/get/maxCreditLimit{customerId}")
+    public ResponseEntity<Object> getMaxCreditLimit(@PathVariable long customerId){
+        return creditCardService.getMaxCreditLimit(customerId);
+    }
+
 }

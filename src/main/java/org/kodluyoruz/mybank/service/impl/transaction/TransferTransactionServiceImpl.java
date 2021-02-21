@@ -3,18 +3,14 @@ package org.kodluyoruz.mybank.service.impl.transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.kodluyoruz.mybank.checker.FormatChecker;
 import org.kodluyoruz.mybank.domain.CurrencyOperation;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
-import org.kodluyoruz.mybank.entity.account.DepositAccount;
-import org.kodluyoruz.mybank.entity.account.SavingAccount;
 //import org.kodluyoruz.mybank.entity.transaction.TransferTransaction;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
 import org.kodluyoruz.mybank.repository.account.AccountRepository;
-import org.kodluyoruz.mybank.repository.account.DepositAccountRepository;
-import org.kodluyoruz.mybank.repository.account.SavingAccountRepository;
-import org.kodluyoruz.mybank.repository.transaction.AccountTransactionRepository;
-import org.kodluyoruz.mybank.repository.transaction.TransferTransactionRepository;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
+import org.kodluyoruz.mybank.service.currency.CurrencyService;
+import org.kodluyoruz.mybank.service.impl.transaction.helper.AccountTypeHelper;
 import org.kodluyoruz.mybank.service.transaction.TransferTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,16 +31,10 @@ public class TransferTransactionServiceImpl implements TransferTransactionServic
     private CustomerRepository customerRepository;
 
     @Autowired
-    private DepositAccountRepository depositAccountRepository;
+    private CurrencyService currencyService;
 
     @Autowired
-    private SavingAccountRepository savingAccountRepository;
-
-    @Autowired
-    private TransferTransactionRepository transferTransactionRepository;
-
-    @Autowired
-    private AccountTransactionRepository accountTransactionRepository;
+    private AccountTypeHelper accountTypeHelper;
 
     @Autowired
     private SaveTransactionServiceImpl saveTransactionServiceImpl;
@@ -55,11 +45,9 @@ public class TransferTransactionServiceImpl implements TransferTransactionServic
     private final FormatChecker formatChecker = new FormatChecker();
 
 
-    public TransferTransactionServiceImpl(CustomerRepository customerRepository, DepositAccountRepository depositAccountRepository, SavingAccountRepository savingAccountRepository, TransferTransactionRepository transferTransactionRepository) {
+    public TransferTransactionServiceImpl(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
-        this.depositAccountRepository = depositAccountRepository;
-        this.savingAccountRepository = savingAccountRepository;
-        this.transferTransactionRepository = transferTransactionRepository;
+
     }
 
     public TransferTransactionServiceImpl() {
@@ -72,87 +60,26 @@ public class TransferTransactionServiceImpl implements TransferTransactionServic
     public <T extends Account> ResponseEntity<Object> sendMoney(T a, T b, TransferTransactionRequest request) throws IOException {
 
 
-        Account senderAccount=null;
-        Account receiverAccount=null;
+        Account senderAccount=accountTypeHelper.setAccountTypeByIban(a,request.getFromIbanNo());
+        Account receiverAccount=accountTypeHelper.setAccountTypeByIban(b,request.getToIbanNo());
 
+        AccountRepository senderRepo = accountTypeHelper.setAccountRepo(a);
+        AccountRepository receiverRepo =accountTypeHelper.setAccountRepo(b);
 
-        AccountRepository senderRepo =null;
-        AccountRepository receiverRepo =null;
-
-        if(a instanceof DepositAccount && b instanceof DepositAccount){
-
-            senderAccount=depositAccountRepository.findByIbanNo(request.getFromIbanNo());
-            receiverAccount=depositAccountRepository.findByIbanNo(request.getToIbanNo());
-
-            if(senderAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sender account not found");
-            }
-            if(receiverAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Receiver account not found");
-            }
-
-            senderRepo =depositAccountRepository;
-            receiverRepo =depositAccountRepository;
+        if(senderAccount==null || receiverAccount==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found");
         }
 
-        if(a instanceof DepositAccount && b instanceof SavingAccount){
 
-            senderAccount=depositAccountRepository.findByIbanNo(request.getFromIbanNo());
-            receiverAccount=savingAccountRepository.findByIbanNo(request.getToIbanNo());
+        if(senderAccount.getAccountType().equals("SavingAccount")){
 
-            if(senderAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sender account not found");
-            }
-            if(receiverAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Receiver account not found");
-            }
-            senderRepo =depositAccountRepository;
-            receiverRepo =savingAccountRepository;
+            Customer senderCustomer=senderAccount.getCustomer();
+            Customer receiverCustomer=receiverAccount.getCustomer();
 
+            if(senderCustomer != receiverCustomer)
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sender account and saving account must be have same customer");
         }
 
-        if(a instanceof SavingAccount && b instanceof DepositAccount){
-
-            senderAccount=savingAccountRepository.findByIbanNo(request.getFromIbanNo());
-            receiverAccount=depositAccountRepository.findByIbanNo(request.getToIbanNo());
-
-            if(senderAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sender account not found");
-            }
-            if(receiverAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Receiver account not found");
-            }
-
-            if(!(senderAccount.getCustomer().equals(receiverAccount.getCustomer()))){
-
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("You can send balance to just  your own account with your saving account");
-            }
-
-            senderRepo =savingAccountRepository;
-            receiverRepo =depositAccountRepository;
-
-        }
-        if(a instanceof SavingAccount && b instanceof SavingAccount){
-
-            senderAccount=savingAccountRepository.findByIbanNo(request.getFromIbanNo());
-            receiverAccount=savingAccountRepository.findByIbanNo(request.getToIbanNo());
-
-            if(senderAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sender account not found");
-            }
-            if(receiverAccount==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Receiver account not found");
-            }
-
-            if(!(senderAccount.getCustomer().equals(receiverAccount.getCustomer()))){
-
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("You can send balance to just  your own account with your saving account");
-            }
-
-            senderRepo =savingAccountRepository;
-            receiverRepo =savingAccountRepository;
-
-        }
         if(senderAccount.getBalance()>=request.getAmount()){
 
             Customer senderCustomer=senderAccount.getCustomer();

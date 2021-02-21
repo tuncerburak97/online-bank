@@ -8,6 +8,7 @@ import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
 import org.kodluyoruz.mybank.service.account.SavingAccountService;
+import org.kodluyoruz.mybank.service.interest.DailyInterestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,10 @@ public class SavingAccountController {
 
     @Autowired
     private AccountTransactionRepository accountTransactionRepository;
+
+    @Autowired
+    private DailyInterestService dailyInterestService;
+
 
     @PostMapping("/create")
     public ResponseEntity<Object> createAccount(@RequestBody CreateSavingAccountRequest request) throws IOException {
@@ -100,4 +105,16 @@ public class SavingAccountController {
             throw new Exception("Account not found");
         }
     }
+
+    @GetMapping("/calculateInterest/{currencyType}/{starterBalance}/{day}")
+    public ResponseEntity<Object> getInterest(@PathVariable String currencyType,@PathVariable double starterBalance,@PathVariable double day){
+
+        return dailyInterestService.calculateInterest(currencyType,starterBalance,day);
+
+    }
+    @PostMapping("/withdrawBalance/allBalance/{accountNumber}")
+    public ResponseEntity<Object> withDrawAllMoney(@PathVariable String accountNumber) throws IOException {
+        return savingAccountService.withDrawAllMoney(accountNumber);
+    }
+
 }

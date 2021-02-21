@@ -2,8 +2,9 @@ package org.kodluyoruz.mybank.entity.account;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.card.DebitCard;
+import org.kodluyoruz.mybank.entity.payment.AutoPayment;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -20,9 +21,15 @@ public class DepositAccount extends Account{
     @OneToMany(mappedBy = "depositAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DebitCard> debitCards;
 
+    @OneToMany(mappedBy = "depositAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AutoPayment> autoPayments;
+
+    /*
     @Version
     private long version;
 
+
+     */
     public DepositAccount() {
     }
 

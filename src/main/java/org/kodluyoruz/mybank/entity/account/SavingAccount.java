@@ -22,7 +22,11 @@ public class SavingAccount extends Account{
     private int remainingDay;
     private double starterBalance;
 
+
+    /*
     @Version
     private long version;
 
+
+     */
 }

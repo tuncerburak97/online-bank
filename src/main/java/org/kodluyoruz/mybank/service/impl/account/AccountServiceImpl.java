@@ -2,7 +2,7 @@ package org.kodluyoruz.mybank.service.impl.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.kodluyoruz.mybank.domain.CurrencyOperation;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.account.CurrencyType;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
@@ -295,6 +295,7 @@ public class AccountServiceImpl implements AccountService {
 
         return ResponseEntity.status(HttpStatus.OK).body("Account created");
     }
+
 
 
 }

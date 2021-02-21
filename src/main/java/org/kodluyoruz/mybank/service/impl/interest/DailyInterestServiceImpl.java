@@ -6,6 +6,7 @@ import org.kodluyoruz.mybank.repository.interest.DailyInterestRepository;
 import org.kodluyoruz.mybank.repository.interest.InterestRepository;
 import org.kodluyoruz.mybank.service.interest.DailyInterestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,17 @@ import javax.annotation.PostConstruct;
 public class DailyInterestServiceImpl implements DailyInterestService {
 
     @Autowired
-    private final DailyInterestRepository dailyInterestRepository;
+    private DailyInterestRepository dailyInterestRepository;
 
     @Autowired
     private InterestRepository interestRepository;
 
     public DailyInterestServiceImpl(DailyInterestRepository dailyInterestRepository) {
         this.dailyInterestRepository = dailyInterestRepository;
+    }
+
+    public DailyInterestServiceImpl() {
+
     }
 
 
@@ -57,14 +62,28 @@ public class DailyInterestServiceImpl implements DailyInterestService {
     @Override
     public ResponseEntity<Object> calculateInterest(String currencyType,double starterBalance,double dayNumber){
 
+
+        if(dayNumber<0 || dayNumber>365)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Day must be between 0 and 365");
+
+        if(starterBalance<1000){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Starter balance have minimum 1000 "+currencyType);
+        }
+
+        double result=starterBalance+this.interestCalculator(currencyType,starterBalance,dayNumber);
+        return ResponseEntity.ok().body("Your total balance will be "+result);
+    }
+
+    public double interestCalculator(String currencyType,double starterBalance,double dayNumber){
+
         Interest interest =interestRepository.findByCurrencyType(currencyType);
 
         double rate = interest.getInterestRate();
         double interestMoneyCalculate=(dayNumber/365)*starterBalance*(rate/100);
         double taxRate=0.1;
 
-        double result = starterBalance+(interestMoneyCalculate)-(taxRate*interestMoneyCalculate);
-        return ResponseEntity.ok().body("Your total balance will be "+result);
+        double interestYield = (interestMoneyCalculate)-(taxRate*interestMoneyCalculate);
+        return interestYield;
     }
 
 

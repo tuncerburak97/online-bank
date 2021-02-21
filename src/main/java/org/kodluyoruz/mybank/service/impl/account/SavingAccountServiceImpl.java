@@ -1,25 +1,27 @@
 package org.kodluyoruz.mybank.service.impl.account;
 
 
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.account.SavingAccount;
-import org.kodluyoruz.mybank.entity.interest.Interest;
 import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
 import org.kodluyoruz.mybank.repository.account.SavingAccountRepository;
 import org.kodluyoruz.mybank.repository.interest.DailyInterestRepository;
 import org.kodluyoruz.mybank.repository.interest.InterestRepository;
-import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
 import org.kodluyoruz.mybank.request.account.CreateSavingAccountRequest;
 import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
 import org.kodluyoruz.mybank.service.account.AccountService;
 import org.kodluyoruz.mybank.service.account.SavingAccountService;
+import org.kodluyoruz.mybank.service.currency.CurrencyService;
+import org.kodluyoruz.mybank.service.impl.interest.DailyInterestServiceImpl;
 import org.kodluyoruz.mybank.service.transaction.AccountTransactionService;
 import org.kodluyoruz.mybank.service.transaction.TransferTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -41,10 +43,11 @@ public class SavingAccountServiceImpl implements SavingAccountService {
     private SavingAccountRepository savingAccountRepository;
 
     @Autowired
-    private DailyInterestRepository dailyInterestRepository;
+    private DailyInterestServiceImpl dailyInterestService;
 
     @Autowired
-    private InterestRepository interestRepository;
+    private CurrencyService currencyService;
+
 
     public SavingAccountServiceImpl(AccountService accountService, AccountTransactionService accountTransactionService, TransferTransactionService transactionService) {
         this.accountService = accountService;
@@ -102,9 +105,47 @@ public class SavingAccountServiceImpl implements SavingAccountService {
         return accountTransactionService.findAccountTransactionByDateAndAccountNumber(savingAccount,date,accountNumber);
     }
 
+    @Override
+    public ResponseEntity<Object> withDrawAllMoney(String accountNumber) throws IOException {
+
+        SavingAccount savingAccount = new SavingAccount();
+        return accountTransactionService.withDrawAllMoney(savingAccount,accountNumber);
+
+    }
+
+    //@Scheduled(cron = "*/10 * * * * *")
+    public void savingAccountInterestChecker() throws IOException {
+
+        List<Account> savingAccounts=savingAccountRepository.findByAccountType("SavingAccount");
+
+        for(int i=0;i<savingAccounts.size();i++){
+
+            SavingAccount savingAccount = savingAccountRepository.findByAccountId(savingAccounts.get(i).getAccountId());
+
+            if(savingAccount.getRemainingDay()>1 && savingAccount.isActive()){
+                savingAccount.setRemainingDay(savingAccount.getRemainingDay()-1);
+                savingAccountRepository.save(savingAccount);
+            }
+
+            else if(savingAccount.getRemainingDay()==1 && savingAccount.isActive()){
+
+                savingAccount.setRemainingDay(savingAccount.getRemainingDay()-1);
+                savingAccount.setActive(false);
+
+                if(savingAccount.getBalance()>=savingAccount.getStarterBalance()){
+
+                    double addBalance=dailyInterestService.interestCalculator(savingAccount.getCurrencyType().toString(),savingAccount.getStarterBalance(),savingAccount.getDay());
 
 
+
+                    savingAccount.setBalance(savingAccount.getBalance()+addBalance);
+                    currencyService.setCustomerAsset(addBalance,savingAccount,"AddBalance");
+
+                    savingAccountRepository.save(savingAccount);
+                } }
         }
+    }
+}
 
 
 

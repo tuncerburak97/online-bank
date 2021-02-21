@@ -1,10 +1,5 @@
 package org.kodluyoruz.mybank.checker;
 
-import org.kodluyoruz.mybank.entity.Customer;
-import org.kodluyoruz.mybank.repository.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

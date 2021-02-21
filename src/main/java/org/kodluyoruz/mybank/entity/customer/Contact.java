@@ -1,29 +1,28 @@
-package org.kodluyoruz.mybank.entity.transaction;
-
+package org.kodluyoruz.mybank.entity.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.kodluyoruz.mybank.entity.customer.Customer;
 
 import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-public abstract class Transaction {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Contact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
-    private long transactionId;
+    private long id;
 
-    @ManyToOne
+    private String email;
+    private String phoneNumber;
+
+    @OneToOne(mappedBy = "contact")
     @JsonIgnore
     private Customer customer;
 

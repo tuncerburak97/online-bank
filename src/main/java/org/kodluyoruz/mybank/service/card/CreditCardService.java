@@ -30,4 +30,6 @@ public interface CreditCardService {
     List<CardTransaction> findByTransactionCardTypeAndCardNo(String cardNo);
 
     List<CardTransaction> findTransactionDateBetweenAndCardNo(TransactionDate date,String cardNo) throws Exception;
+
+    public ResponseEntity<Object> getMaxCreditLimit(long customerId);
 }

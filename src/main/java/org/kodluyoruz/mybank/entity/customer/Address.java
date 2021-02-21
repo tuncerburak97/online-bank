@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.entity;
+package org.kodluyoruz.mybank.entity.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

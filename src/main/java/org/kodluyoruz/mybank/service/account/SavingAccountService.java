@@ -1,5 +1,6 @@
 package org.kodluyoruz.mybank.service.account;
 
+import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
 import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
 import org.kodluyoruz.mybank.request.account.CreateSavingAccountRequest;
@@ -20,4 +21,5 @@ public interface SavingAccountService {
     public ResponseEntity<Object> sendMoneyToSaving(TransferTransactionRequest request) throws IOException;
     public ResponseEntity<Object> deleteAccount(String accountNumber);
     public List<AccountTransaction> findTransaction(TransactionDate date, String accountNumber) throws Exception;
+    public ResponseEntity<Object> withDrawAllMoney(String accountNumber) throws IOException;
 }

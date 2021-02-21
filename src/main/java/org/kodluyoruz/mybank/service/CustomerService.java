@@ -1,6 +1,6 @@
 package org.kodluyoruz.mybank.service;
 
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.request.customer.create.CreateCustomerRequest;
 import org.kodluyoruz.mybank.request.customer.update.UpdateAddress;
 import org.kodluyoruz.mybank.request.customer.update.UpdateEmail;

@@ -1,11 +1,10 @@
 package org.kodluyoruz.mybank.service.impl.transaction;
 
 import org.kodluyoruz.mybank.domain.CurrencyOperation;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
 import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
-import org.kodluyoruz.mybank.entity.transaction.Transaction;
 import org.kodluyoruz.mybank.entity.transaction.TransferTransaction;
 import org.kodluyoruz.mybank.repository.transaction.AccountTransactionRepository;
 import org.kodluyoruz.mybank.repository.transaction.CardTransactionRepository;
@@ -49,9 +48,7 @@ public class SaveTransactionServiceImpl implements SaveTransactionService {
     }
 
     @Override
-    public void saveDebtOnAccount(Account account, DebtOnAccountRequest request, CurrencyOperation currencyClass){
-
-        double txnAmount = currencyClass.getRates().get(account.getCurrencyType().toString())*request.getDebt();
+    public void saveDebtOnAccount(Account account, DebtOnAccountRequest request, double txnAmount){
 
         AccountTransaction accountTransaction = new AccountTransaction(
                 account.getAccountNumber(),
@@ -81,10 +78,9 @@ public class SaveTransactionServiceImpl implements SaveTransactionService {
 
     }
     @Override
-    public void saveDebitCardTransaction(CardTransactionRequest request, Account account, String txnType,CurrencyOperation currencyClass){
+    public void saveDebitCardTransaction(CardTransactionRequest request, Account account, String txnType,double txnAmount){
 
         double amount=0;
-        double txnAmount = currencyClass.getRates().get(account.getCurrencyType().toString())*request.getAmount();
 
         if(txnType.equals("DebtPayment"))
             amount=txnAmount;
@@ -158,5 +154,22 @@ public class SaveTransactionServiceImpl implements SaveTransactionService {
 
     }
 
+    @Override
+    public void saveAutoPaymentTransaction(Account account,double amount,String txnType){
+
+
+        AccountTransaction accountTransaction =new AccountTransaction(
+                account.getAccountNumber(),
+                account.getCurrencyType().toString(),
+                amount,
+                txnType,
+                new Timestamp(System.currentTimeMillis())
+        );
+        accountTransaction.setCustomer(account.getCustomer());
+        accountTransactionRepository.save(accountTransaction);
+
+
+
+    }
 
 }

@@ -4,11 +4,15 @@ package org.kodluyoruz.mybank.service.impl.card;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.account.SavingAccount;
 import org.kodluyoruz.mybank.entity.card.CreditCard;
+import org.kodluyoruz.mybank.entity.credit.CreditPoint;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.operation.OperationType;
 import org.kodluyoruz.mybank.entity.operation.SystemOperations;
 import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
+import org.kodluyoruz.mybank.repository.CustomerRepository;
 import org.kodluyoruz.mybank.repository.SystemOperationsRepository;
 import org.kodluyoruz.mybank.repository.card.CreditCardRepository;
+import org.kodluyoruz.mybank.repository.credit.CreditPointRepository;
 import org.kodluyoruz.mybank.repository.transaction.CardTransactionRepository;
 import org.kodluyoruz.mybank.request.card.CreateCreditCardRequest;
 import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
@@ -49,6 +53,12 @@ public class CreditCardServiceImpl implements CreditCardService {
 
     @Autowired
     private SystemOperationsRepository systemOperationsRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private CreditPointRepository creditPointRepository;
 
     @Override
     public ResponseEntity<Object> createCredit(CreateCreditCardRequest request) {
@@ -140,6 +150,19 @@ public class CreditCardServiceImpl implements CreditCardService {
 
         CreditCard creditCard = new CreditCard();
         return cardTransactionService.findByDateBetweenAndCardNo(creditCard,date,cardNo);
+    }
+
+    @Override
+    public ResponseEntity<Object> getMaxCreditLimit(long customerId){
+
+        Customer customer = customerRepository.findById(customerId);
+        if(customer==null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+
+        CreditPoint creditPoint = creditPointRepository.findByRanking(customer.getCreditPoint());
+        return ResponseEntity.status(HttpStatus.OK).body("The customer's credit card limit can be up to "+creditPoint.getMaxCreditLimit() +" TL");
+
+
     }
 
 

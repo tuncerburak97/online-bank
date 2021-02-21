@@ -1,14 +1,14 @@
 package org.kodluyoruz.mybank.service.impl.card;
 
 
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.credit.CreditPoint;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.card.Card;
 import org.kodluyoruz.mybank.entity.card.CreditCard;
 import org.kodluyoruz.mybank.entity.card.DebitCard;
 import org.kodluyoruz.mybank.entity.operation.OperationType;
 import org.kodluyoruz.mybank.entity.operation.SystemOperations;
-import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
 import org.kodluyoruz.mybank.generator.CardNumberGenerator;
 import org.kodluyoruz.mybank.generator.SecurityCodeGenerator;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
@@ -16,18 +16,17 @@ import org.kodluyoruz.mybank.repository.SystemOperationsRepository;
 import org.kodluyoruz.mybank.repository.account.DepositAccountRepository;
 import org.kodluyoruz.mybank.repository.card.CreditCardRepository;
 import org.kodluyoruz.mybank.repository.card.DebitCardRepository;
+import org.kodluyoruz.mybank.repository.credit.CreditPointRepository;
 import org.kodluyoruz.mybank.request.card.CreateCreditCardRequest;
 import org.kodluyoruz.mybank.request.card.CreateDebitCardRequest;
 import org.kodluyoruz.mybank.service.card.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -47,6 +46,9 @@ public class CardServiceImpl implements CardService {
 
     @Autowired
     private SystemOperationsRepository systemOperationsRepository;
+
+    @Autowired
+    private CreditPointRepository creditPointRepository;
 
 
     CardNumberGenerator cardNumberGenerator=new CardNumberGenerator();
@@ -87,6 +89,14 @@ public class CardServiceImpl implements CardService {
             isUnique=false;
         }
 
+        CreditPoint creditPoint = creditPointRepository.findByRanking(customer.getCreditPoint());
+
+        if(request.getCreditLimit()>creditPoint.getMaxCreditLimit()){
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Customer credit point is:"+customer.getCreditPoint()+"Max credit limit can be "+creditPoint.getMaxCreditLimit());
+
+        }
+
 
         creditCard.setCardLimit(request.getCreditLimit());
         creditCard.setCardType(creditCard.getClass().getSimpleName());
@@ -96,8 +106,6 @@ public class CardServiceImpl implements CardService {
         creditCard.setCustomer(customer);
         creditCard.setSecurityNumber(securityCodeGenerator.generateSecurityCode());
 
-
-//        customer.getCreditCards().add(creditCard);
 
         creditCardRepository.save(creditCard);
 
@@ -167,6 +175,7 @@ public class CardServiceImpl implements CardService {
         return expiredDate;
 
     }
+
 
     //@Scheduled(cron = "0 0 1 * *")
     public void isUsable(){

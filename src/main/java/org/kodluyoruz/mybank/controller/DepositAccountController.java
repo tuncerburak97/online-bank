@@ -35,12 +35,15 @@ public class DepositAccountController {
     public ResponseEntity<Object> createAccount(@RequestBody CreateAccountRequest request) throws IOException {
         return depositAccountService.createAccount(request);
     }
+
+
     @PostMapping("/addBalance")
     public ResponseEntity<Object> addBalance(@RequestBody AccountTransactionRequest request) throws IOException {
 
         try {
             return depositAccountService.addBalance(request);
         }catch (Exception e){
+
 
             return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
         }
@@ -52,7 +55,8 @@ public class DepositAccountController {
             return depositAccountService.withdrawBalance(request);
         }catch (Exception e){
 
-            return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
+
+           return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
         }
     }
 
@@ -98,6 +102,15 @@ public class DepositAccountController {
         }catch (Exception e){
             throw new Exception("Account not found");
         }
+    }
+
+    @PostMapping("/withdrawBalance/allBalance/{accountNumber}")
+    public ResponseEntity<Object> withDrawAllMoney(@PathVariable String accountNumber) throws IOException {
+        return depositAccountService.withDrawAllMoney(accountNumber);
+    }
+    @PostMapping("create/order/autoPayment/{accountNumber}/{amount}")
+    public ResponseEntity<Object> autoPaymentRequest(@PathVariable String accountNumber,@PathVariable double amount){
+        return depositAccountService.autoPaymentRequest(accountNumber,amount);
     }
 
 }

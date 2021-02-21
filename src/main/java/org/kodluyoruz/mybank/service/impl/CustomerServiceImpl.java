@@ -1,9 +1,10 @@
 package org.kodluyoruz.mybank.service.impl;
 
 import org.kodluyoruz.mybank.checker.FormatChecker;
-import org.kodluyoruz.mybank.entity.Address;
-import org.kodluyoruz.mybank.entity.Contact;
-import org.kodluyoruz.mybank.entity.Customer;
+import org.kodluyoruz.mybank.entity.credit.CreditPoint;
+import org.kodluyoruz.mybank.entity.customer.Address;
+import org.kodluyoruz.mybank.entity.customer.Contact;
+import org.kodluyoruz.mybank.entity.customer.Customer;
 import org.kodluyoruz.mybank.entity.operation.OperationType;
 import org.kodluyoruz.mybank.entity.operation.SystemOperations;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Random;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -99,12 +99,14 @@ public class CustomerServiceImpl implements CustomerService {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("A customer with this email was found in the records.");
 
         Customer customer = new Customer();
+        Random random = new Random();
 
         customer.setAsset(0);
         customer.setName(request.getName());
         customer.setGender(request.getGender());
         customer.setLastName(request.getSurname());
         customer.setIdentificationNumber(request.getIdentificationNumber());
+        customer.setCreditPoint((int) ((Math.random() * (6 - 1)) + 1));
 
         Address address = new Address(0L,request.getAddress().getStreet(),request.getAddress().getCity(),request.getAddress().getZipcode(),customer);
         Contact contact = new Contact(0L,request.getContact().getEmail(),request.getContact().getPhoneNumber(),customer);

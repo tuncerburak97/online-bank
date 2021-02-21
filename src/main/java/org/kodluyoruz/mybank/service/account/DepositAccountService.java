@@ -22,5 +22,7 @@ public interface DepositAccountService {
     public ResponseEntity<Object> sendMoneyToSaving(TransferTransactionRequest request) throws IOException;
     public ResponseEntity<Object> deleteAccount(String accountNumber);
     public List<AccountTransaction> findTransaction(TransactionDate date, String accountNumber) throws Exception;
+    public ResponseEntity<Object> withDrawAllMoney(String accountNumber) throws IOException;
+    public ResponseEntity<Object> autoPaymentRequest(String accountNumber,double amount);
 
 }
