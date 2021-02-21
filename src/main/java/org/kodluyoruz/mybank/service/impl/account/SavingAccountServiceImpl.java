@@ -1,10 +1,18 @@
 package org.kodluyoruz.mybank.service.impl.account;
 
 
+import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.account.SavingAccount;
-import org.kodluyoruz.mybank.request.CreateAccountRequest;
+import org.kodluyoruz.mybank.entity.interest.Interest;
+import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
+import org.kodluyoruz.mybank.repository.account.SavingAccountRepository;
+import org.kodluyoruz.mybank.repository.interest.DailyInterestRepository;
+import org.kodluyoruz.mybank.repository.interest.InterestRepository;
+import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
+import org.kodluyoruz.mybank.request.account.CreateSavingAccountRequest;
 import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
 import org.kodluyoruz.mybank.service.account.AccountService;
 import org.kodluyoruz.mybank.service.account.SavingAccountService;
@@ -15,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class SavingAccountServiceImpl implements SavingAccountService {
@@ -28,6 +37,15 @@ public class SavingAccountServiceImpl implements SavingAccountService {
     @Autowired
     private final TransferTransactionService transactionService;
 
+    @Autowired
+    private SavingAccountRepository savingAccountRepository;
+
+    @Autowired
+    private DailyInterestRepository dailyInterestRepository;
+
+    @Autowired
+    private InterestRepository interestRepository;
+
     public SavingAccountServiceImpl(AccountService accountService, AccountTransactionService accountTransactionService, TransferTransactionService transactionService) {
         this.accountService = accountService;
         this.accountTransactionService = accountTransactionService;
@@ -35,9 +53,9 @@ public class SavingAccountServiceImpl implements SavingAccountService {
     }
 
     @Override
-    public ResponseEntity<Object> createAccount(CreateAccountRequest request) {
+    public ResponseEntity<Object> createAccount(CreateSavingAccountRequest request) throws IOException {
         SavingAccount savingAccount = new SavingAccount();
-        return accountService.createAccount(savingAccount,request);
+        return accountService.createSavingAccount(savingAccount,request);
     }
 
     @Override
@@ -77,5 +95,18 @@ public class SavingAccountServiceImpl implements SavingAccountService {
         SavingAccount savingAccount = new SavingAccount();
         return accountService.deleteAccount(savingAccount,accountNumber);
     }
-}
+
+    @Override
+    public List<AccountTransaction> findTransaction(TransactionDate date, String accountNumber) throws Exception {
+        SavingAccount savingAccount = new SavingAccount();
+        return accountTransactionService.findAccountTransactionByDateAndAccountNumber(savingAccount,date,accountNumber);
+    }
+
+
+
+        }
+
+
+
+
 

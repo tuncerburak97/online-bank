@@ -9,7 +9,8 @@ public class IbanNumberGenerator {
 
         Iban iban = new Iban.Builder()
                 .countryCode(CountryCode.TR)
-                .bankCode("19043").accountNumber(accountNumber)
+                .bankCode("19043")
+                .accountNumber(accountNumber)
                 .buildRandom();
 
         return iban.toString();

@@ -1,21 +1,25 @@
 package org.kodluyoruz.mybank.customer;
 
 
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kodluyoruz.mybank.entity.Customer;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.card.CreditCard;
+import org.kodluyoruz.mybank.entity.card.DebitCard;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
 import org.kodluyoruz.mybank.repository.account.DepositAccountRepository;
 import org.kodluyoruz.mybank.repository.account.SavingAccountRepository;
-import org.kodluyoruz.mybank.request.CreateAccountRequest;
+import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
 import org.kodluyoruz.mybank.request.card.CreateCreditCardRequest;
+import org.kodluyoruz.mybank.request.card.CreateDebitCardRequest;
 import org.kodluyoruz.mybank.request.customer.create.CreateCustomerAddressRequest;
 import org.kodluyoruz.mybank.request.customer.create.CreateCustomerContactRequest;
 import org.kodluyoruz.mybank.request.customer.create.CreateCustomerRequest;
 import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
+import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
 import org.kodluyoruz.mybank.service.impl.CustomerServiceImpl;
 import org.kodluyoruz.mybank.service.impl.account.AccountServiceImpl;
@@ -233,6 +237,7 @@ public class CustomerTest {
         List<Customer> findAll = customerRepository.findAll();
 
         int size = findAll.size();
+
         Assertions.assertEquals(2, size);
 
     }
@@ -299,10 +304,11 @@ public class CustomerTest {
 
         Assertions.assertEquals(50, senderDeposit.getBalance());
 
+
     }
 
     @Test
-    public void createCreditCard() {
+    public void createCreditCardAndWithdraw() {
 
 
         Customer customer = customerRepository.findByName("Dilara");
@@ -315,13 +321,53 @@ public class CustomerTest {
         request.setCreditLimit(5000);
 
         ResponseEntity actual = cardService.createCreditCard(creditCard, request);
-
         ResponseEntity expected = ResponseEntity.status(HttpStatus.OK).body("Credit card created");
 
+        //create test
         Assertions.assertEquals(expected, actual);
+
+        CardTransactionRequest cardTransactionRequest = new CardTransactionRequest();
+
+        cardTransactionRequest.setAmount(100);
+        cardTransactionRequest.setCardNumber(creditCard.getCardNumber());
+
+        cardTransactionService.withdrawCreditCard(cardTransactionRequest);
+
+        //withdrawTest
+        Assertions.assertEquals(4900,creditCard.getCurrentLimit());
+    }
+
+    @Test
+    public void addBalanceFromDebitCard() throws IOException {
+
+        Customer customer = customerRepository.findByName("Dilara");
+
+        DepositAccount depositAccount = depositAccountRepository.findByCustomerId(customer.getId());
+
+        CreateDebitCardRequest createDebitCardRequest = new CreateDebitCardRequest();
+        String accountNumber = depositAccount.getAccountNumber();
+
+        createDebitCardRequest.setAccountNumber(accountNumber);
+
+        DebitCard debitCard = new DebitCard();
+
+        cardService.createDebitCard(debitCard,createDebitCardRequest);
+
+
+        CardTransactionRequest request1 = new CardTransactionRequest();
+
+        request1.setCardNumber(debitCard.getCardNumber());
+        request1.setAmount(100);
+
+        cardTransactionService.debitCardTransaction(request1,"AddBalance");
+
+
+        Assertions.assertEquals(100,depositAccount.getBalance());
 
 
     }
+
+
 }
 
 

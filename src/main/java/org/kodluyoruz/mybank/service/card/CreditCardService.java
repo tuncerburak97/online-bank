@@ -5,6 +5,7 @@ import org.kodluyoruz.mybank.request.card.CreateCreditCardRequest;
 import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.DebtOnAccountRequest;
 import org.kodluyoruz.mybank.request.transaction.DebtOnCardRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -27,4 +28,6 @@ public interface CreditCardService {
     ResponseEntity<Object> deleteCreditCardByCardNumber(String cardNumber);
 
     List<CardTransaction> findByTransactionCardTypeAndCardNo(String cardNo);
+
+    List<CardTransaction> findTransactionDateBetweenAndCardNo(TransactionDate date,String cardNo) throws Exception;
 }

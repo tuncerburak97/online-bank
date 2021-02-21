@@ -8,6 +8,7 @@ import org.kodluyoruz.mybank.entity.card.CreditCard;
 import org.kodluyoruz.mybank.entity.card.DebitCard;
 import org.kodluyoruz.mybank.entity.operation.OperationType;
 import org.kodluyoruz.mybank.entity.operation.SystemOperations;
+import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
 import org.kodluyoruz.mybank.generator.CardNumberGenerator;
 import org.kodluyoruz.mybank.generator.SecurityCodeGenerator;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
@@ -21,10 +22,12 @@ import org.kodluyoruz.mybank.service.card.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -137,8 +140,10 @@ public class CardServiceImpl implements CardService {
         debitCard.setSecurityNumber(securityCodeGenerator.generateSecurityCode());
 
 
-        depositAccount.getDebitCards().add(debitCard);
-        depositAccountRepository.save(depositAccount);
+        // depositAccount.getDebitCards().add(debitCard);
+
+        debitCardRepository.save(debitCard);
+        //depositAccountRepository.save(depositAccount);
 
 
         SystemOperations systemOperations = new SystemOperations(0L, OperationType.CREATE_DEBIT_CARD.toString(), new Timestamp(System.currentTimeMillis()));
@@ -148,6 +153,8 @@ public class CardServiceImpl implements CardService {
 
         return ResponseEntity.status(HttpStatus.OK).body("Debit card created");
     }
+
+
 
 
     public String expiredDate(){
@@ -161,7 +168,7 @@ public class CardServiceImpl implements CardService {
 
     }
 
-    // @Scheduled(cron = "0 0 1 * *")
+    //@Scheduled(cron = "0 0 1 * *")
     public void isUsable(){
 
 

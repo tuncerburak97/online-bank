@@ -1,5 +1,7 @@
 package org.kodluyoruz.mybank.service.impl.account;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kodluyoruz.mybank.domain.CurrencyOperation;
 import org.kodluyoruz.mybank.entity.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.account.CurrencyType;
@@ -14,14 +16,22 @@ import org.kodluyoruz.mybank.repository.SystemOperationsRepository;
 import org.kodluyoruz.mybank.repository.account.AccountRepository;
 import org.kodluyoruz.mybank.repository.account.DepositAccountRepository;
 import org.kodluyoruz.mybank.repository.account.SavingAccountRepository;
-import org.kodluyoruz.mybank.request.CreateAccountRequest;
+import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
+import org.kodluyoruz.mybank.request.account.CreateSavingAccountRequest;
+import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
 import org.kodluyoruz.mybank.service.account.AccountService;
+import org.kodluyoruz.mybank.service.transaction.AccountTransactionService;
+import org.kodluyoruz.mybank.service.transaction.SaveTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -38,6 +48,12 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private SystemOperationsRepository systemOperationsRepository;
 
+    @Autowired
+    private AccountTransactionService accountTransactionService;
+
+    @Autowired
+    private SaveTransactionService saveTransactionService;
+
 
 
     public AccountServiceImpl(DepositAccountRepository depositAccountRepository, CustomerRepository customerRepository, SavingAccountRepository savingAccountRepository) {
@@ -52,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public <T extends Account> ResponseEntity<Object> createAccount(T a, CreateAccountRequest request) {
+    public <T extends Account> ResponseEntity<Object> createAccount(T a, CreateAccountRequest request) throws IOException {
 
         Customer customer = customerRepository.findById(request.getCustomerId());
 
@@ -67,7 +83,6 @@ public class AccountServiceImpl implements AccountService {
 
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account type must be USD,EUR or TRY");
         }
-
 
         if (a instanceof DepositAccount) {
 
@@ -98,15 +113,16 @@ public class AccountServiceImpl implements AccountService {
                 continue;
             }
 
+
             account.setAccountNumber(accountNumber);
             account.setIbanNo(ibanNo);
             account.setCustomer(customer);
             account.setCurrencyType(CurrencyType.valueOf(request.getCurrencyType()));
-            account.setBalance(0);
             account.setCustomer(customer);
             account.setAccountType(a.getClass().getSimpleName());
 
-//         customer.getAccounts().add(account);
+
+            //customer.getAccounts().add(account);
 
             accountRepository.save(account);
             customerRepository.save(customer);
@@ -181,9 +197,104 @@ public class AccountServiceImpl implements AccountService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account deleted.");
 
 
-
     }
 
+    @Override
+    public <T extends Account> ResponseEntity<Object> createSavingAccount(T a, CreateSavingAccountRequest request) throws IOException {
+        Customer customer = customerRepository.findById(request.getCustomerId());
+
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+        }
+
+        SavingAccount savingAccount = new SavingAccount();
+        AccountRepository accountRepository = savingAccountRepository;
+
+        if(!(request.getCurrencyType().equals("USD")||request.getCurrencyType().equals("TRY")||request.getCurrencyType().equals("EUR"))){
+
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account type must be USD,EUR or TRY");
+        }
+
+        if(request.getDay()>365 || request.getDay()<0)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Day must be between 0 and 365");
+
+        if(request.getBalance()<1000)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The account can be opened with a minimum of 1000 "+request.getCurrencyType().toString());
+
+
+        boolean isUnique=true;
+
+        while (isUnique){
+
+            AccountNumberGenerator accountNumberGenerator=new AccountNumberGenerator();
+            String accountNumber=accountNumberGenerator.generateAccountNumber();
+
+            if(accountRepository.findByAccountNumber(accountNumber)!=null){
+                continue;
+            }
+
+            IbanNumberGenerator ibanNumberGenerator = new IbanNumberGenerator();
+            String ibanNo=ibanNumberGenerator.ibanGenerate(accountNumber);
+
+            if(accountRepository.findByIbanNo(ibanNo)!=null){
+                continue;
+            }
+
+            savingAccount.setDay(request.getDay());
+            savingAccount.setAccountNumber(accountNumber);
+            savingAccount.setIbanNo(ibanNo);
+            savingAccount.setCustomer(customer);
+            savingAccount.setCurrencyType(CurrencyType.valueOf(request.getCurrencyType()));
+            savingAccount.setBalance(request.getBalance());
+            savingAccount.setCustomer(customer);
+            savingAccount.setAccountType(a.getClass().getSimpleName());
+
+            Date startDate = new Date(System.currentTimeMillis());
+            Date endDate=new Date();
+
+            Calendar calendar =Calendar.getInstance();
+            calendar.setTime(startDate);
+            calendar.add(Calendar.DATE,request.getDay());
+            endDate=calendar.getTime();
+
+            savingAccount.setCreatedDate(startDate);
+            savingAccount.setEndDate(endDate);
+
+            savingAccount.setActive(true);
+            savingAccount.setRemainingDay(request.getDay());
+            savingAccount.setStarterBalance(request.getBalance());
+
+
+            ObjectMapper objectMapper =new ObjectMapper();
+            URL url = new URL("https://api.exchangeratesapi.io/latest?base=TRY");
+            CurrencyOperation currencyClass =objectMapper.readValue(url,CurrencyOperation.class);
+
+            double newCustomerAsset = request.getBalance()/currencyClass.getRates().get(savingAccount.getCurrencyType().toString());
+            customer.setAsset(customer.getAsset()+newCustomerAsset);
+
+
+            accountRepository.save(savingAccount);
+            customerRepository.save(customer);
+
+
+
+                AccountTransactionRequest transactionRequest =new AccountTransactionRequest();
+                transactionRequest.setAmount(request.getBalance());
+                transactionRequest.setAccountNumber(accountNumber);
+
+                saveTransactionService.saveBalanceOnAccount("AddBalance",savingAccount,transactionRequest);
+
+
+                SystemOperations systemOperations = new SystemOperations(0L, OperationType.CREATE_SAVING_ACCOUNT.toString(), new Timestamp(System.currentTimeMillis()));
+                systemOperations.setCustomer(savingAccount.getCustomer());
+                systemOperationsRepository.save(systemOperations);
+
+
+            isUnique=false;
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body("Account created");
+    }
 
 
 }

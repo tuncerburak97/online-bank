@@ -1,14 +1,17 @@
 package org.kodluyoruz.mybank.service.impl.card;
 
 
+import org.kodluyoruz.mybank.entity.card.CreditCard;
 import org.kodluyoruz.mybank.entity.card.DebitCard;
 import org.kodluyoruz.mybank.entity.operation.OperationType;
 import org.kodluyoruz.mybank.entity.operation.SystemOperations;
+import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
 import org.kodluyoruz.mybank.repository.SystemOperationsRepository;
 import org.kodluyoruz.mybank.repository.card.DebitCardRepository;
 import org.kodluyoruz.mybank.request.card.CreateDebitCardRequest;
 import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.service.card.CardService;
 import org.kodluyoruz.mybank.service.card.DebitCardService;
 import org.kodluyoruz.mybank.service.transaction.CardTransactionService;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 public class DebitCardServiceImpl implements DebitCardService {
@@ -72,8 +76,11 @@ public class DebitCardServiceImpl implements DebitCardService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Debit card deleted");
     }
 
-
-
+    @Override
+    public List<CardTransaction> findTransactionDateBetweenAndCardNo(TransactionDate date, String cardNo) throws Exception {
+        DebitCard debitCard = new DebitCard();
+        return cardTransactionService.findByDateBetweenAndCardNo(debitCard,date,cardNo);
+    }
 
 
 }

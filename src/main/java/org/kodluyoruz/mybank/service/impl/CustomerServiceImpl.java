@@ -1,5 +1,6 @@
 package org.kodluyoruz.mybank.service.impl;
 
+import org.kodluyoruz.mybank.checker.FormatChecker;
 import org.kodluyoruz.mybank.entity.Address;
 import org.kodluyoruz.mybank.entity.Contact;
 import org.kodluyoruz.mybank.entity.Customer;
@@ -31,6 +32,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private SystemOperationsRepository systemOperationsRepository;
 
+    private final FormatChecker formatChecker=new FormatChecker();
+
 
     public CustomerServiceImpl(CustomerRepository customerRepository,SystemOperationsRepository systemOperationsRepository) {
         this.customerRepository = customerRepository;
@@ -44,7 +47,21 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<Object> create(CreateCustomerRequest request) throws Exception {
 
-        boolean emailChecker=this.emailChecker(request.getContact().getEmail());
+        boolean emailChecker=formatChecker.emailChecker(request.getContact().getEmail());
+        boolean nameCheck=formatChecker.nameAndLastnameFormatChecker(request.getName());
+        boolean lastNameCheck=formatChecker.nameAndLastnameFormatChecker(request.getSurname());
+        boolean identificationNumberTypeChecker =formatChecker.numberFormatChecker(request.getIdentificationNumber());
+        boolean phoneNumberChecker=formatChecker.numberFormatChecker(request.getContact().getPhoneNumber());
+
+
+        if(!nameCheck || !lastNameCheck){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid name or lastname type");
+        }
+
+
+        if(!identificationNumberTypeChecker){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid identification type");
+        }
 
         if(!emailChecker){
 
@@ -55,6 +72,9 @@ public class CustomerServiceImpl implements CustomerService {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Identification number length must be 11");
         }
 
+        if(!phoneNumberChecker){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid phone number type");
+        }
 
         if(request.getContact().getPhoneNumber().length()!=11){
             if(!request.getContact().getPhoneNumber().startsWith("0")){
@@ -165,6 +185,13 @@ public class CustomerServiceImpl implements CustomerService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This e-mail already used in bank.Update email operation not allowed");
         }
 
+        boolean emailChecker = formatChecker.emailChecker(email.getEmail());
+
+        if(!emailChecker){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid e-mail type");
+        }
+
+
         Contact contact = customer.getContact();
         contact.setEmail(email.getEmail());
 
@@ -192,6 +219,13 @@ public class CustomerServiceImpl implements CustomerService {
         if(!isUnique){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This phone number already used in bank.Update email operation not allowed");
         }
+
+        boolean phoneNumberChecker =formatChecker.numberFormatChecker(number.getPhoneNumber());
+
+        if(!phoneNumberChecker){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid phone number type");
+        }
+
 
         Contact contact = customer.getContact();
         contact.setPhoneNumber(number.getPhoneNumber());
@@ -226,18 +260,6 @@ public class CustomerServiceImpl implements CustomerService {
         return ResponseEntity.status(HttpStatus.OK).body("Address updated");
 
     }
-
-
-    boolean emailChecker(String email){
-
-        String regex = "^(.+)@(.+)$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-
-        return matcher.matches();
-
-    }
-
     public boolean identificationNumberChecker(String idNumber){
 
         Customer idNumberChecker =customerRepository.findByIdentificationNumber(idNumber);
@@ -268,6 +290,9 @@ public class CustomerServiceImpl implements CustomerService {
         }
         return true;
     }
+
+
+
 
 
 

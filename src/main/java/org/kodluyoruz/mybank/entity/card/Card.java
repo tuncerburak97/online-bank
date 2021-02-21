@@ -26,5 +26,8 @@ public abstract class Card {
 
     private String expiredDate;
 
+    @Version
+    private long version;
+
 
 }

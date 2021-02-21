@@ -14,6 +14,7 @@ import org.kodluyoruz.mybank.request.card.CreateCreditCardRequest;
 import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.DebtOnAccountRequest;
 import org.kodluyoruz.mybank.request.transaction.DebtOnCardRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.service.card.CardService;
 import org.kodluyoruz.mybank.service.card.CreditCardService;
 import org.kodluyoruz.mybank.service.transaction.AccountTransactionService;
@@ -113,6 +114,7 @@ public class CreditCardServiceImpl implements CreditCardService {
 
 
         SystemOperations systemOperations = new SystemOperations(0L, OperationType.DELETE_CREDIT_CARD.toString(), new Timestamp(System.currentTimeMillis()));
+        systemOperations.setCustomer(creditCard.getCustomer());
         systemOperationsRepository.save(systemOperations);
 
         return ResponseEntity.status(HttpStatus.OK).body("Credit card have a debt.Delete operation is not allowed.");
@@ -131,6 +133,13 @@ public class CreditCardServiceImpl implements CreditCardService {
         }
         return cardTransactionRepository.findByCardNo(cardNo);
 
+    }
+
+    @Override
+    public List<CardTransaction> findTransactionDateBetweenAndCardNo(TransactionDate date, String cardNo) throws Exception {
+
+        CreditCard creditCard = new CreditCard();
+        return cardTransactionService.findByDateBetweenAndCardNo(creditCard,date,cardNo);
     }
 
 

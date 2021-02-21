@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.request;
+package org.kodluyoruz.mybank.request.account;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,8 @@ import lombok.Setter;
 public class CreateAccountRequest {
 
     private String currencyType;
-    public long customerId;
+    private long customerId;
+
 
 
 

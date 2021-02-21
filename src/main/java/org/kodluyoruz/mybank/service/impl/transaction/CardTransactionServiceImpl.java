@@ -2,31 +2,42 @@ package org.kodluyoruz.mybank.service.impl.transaction;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kodluyoruz.mybank.checker.FormatChecker;
 import org.kodluyoruz.mybank.domain.CurrencyOperation;
 import org.kodluyoruz.mybank.entity.Customer;
 import org.kodluyoruz.mybank.entity.account.Account;
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
+import org.kodluyoruz.mybank.entity.card.Card;
 import org.kodluyoruz.mybank.entity.card.CreditCard;
 import org.kodluyoruz.mybank.entity.card.DebitCard;
-import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
 import org.kodluyoruz.mybank.entity.transaction.CardTransaction;
 import org.kodluyoruz.mybank.repository.CustomerRepository;
 import org.kodluyoruz.mybank.repository.account.AccountRepository;
 import org.kodluyoruz.mybank.repository.account.DepositAccountRepository;
 import org.kodluyoruz.mybank.repository.card.CreditCardRepository;
 import org.kodluyoruz.mybank.repository.card.DebitCardRepository;
+import org.kodluyoruz.mybank.repository.transaction.AccountTransactionRepository;
 import org.kodluyoruz.mybank.repository.transaction.CardTransactionRepository;
+import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.CardTransactionRequest;
 import org.kodluyoruz.mybank.request.transaction.DebtOnCardRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.service.transaction.CardTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class CardTransactionServiceImpl implements CardTransactionService {
@@ -46,6 +57,17 @@ public class CardTransactionServiceImpl implements CardTransactionService {
     @Autowired
     private CardTransactionRepository cardTransactionRepository;
 
+    @Autowired
+    private AccountTransactionRepository accountTransactionRepository;
+
+    @Autowired
+    private SaveTransactionServiceImpl saveTransactionServiceImpl;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final FormatChecker formatChecker = new FormatChecker();
+
     public CardTransactionServiceImpl(CustomerRepository customerRepository, CreditCardRepository creditCardRepository, DepositAccountRepository depositAccountRepository, DebitCardRepository debitCardRepository, CardTransactionRepository cardTransactionRepository) {
         this.customerRepository = customerRepository;
         this.creditCardRepository = creditCardRepository;
@@ -58,8 +80,15 @@ public class CardTransactionServiceImpl implements CardTransactionService {
 
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Object> withdrawCreditCard(CardTransactionRequest transaction){
+
+        boolean cardNumberChecker = formatChecker.numberFormatChecker(transaction.getCardNumber());
+
+        if(!cardNumberChecker)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid card number type");
+
 
         CreditCard creditCard = creditCardRepository.findByCardNumber(transaction.getCardNumber());
 
@@ -74,12 +103,20 @@ public class CardTransactionServiceImpl implements CardTransactionService {
 
         if(creditCard.getCurrentLimit()>=transaction.getAmount()){
 
-            creditCard.setCurrentLimit(creditCard.getCurrentLimit()-transaction.getAmount());
-            creditCardRepository.save(creditCard);
+            entityManager.lock(creditCard, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
-          CardTransaction cardTransaction = new CardTransaction(transaction.getAmount(),"Withdraw",new Timestamp(System.currentTimeMillis()),transaction.getCardNumber(),"CreditCard","TRY");
-          cardTransaction.setCustomer(creditCard.getCustomer());
-           cardTransactionRepository.save(cardTransaction);
+            try {
+
+                Thread.sleep(5000);
+                creditCard.setCurrentLimit(creditCard.getCurrentLimit()-transaction.getAmount());
+                creditCardRepository.save(creditCard);
+
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account is busy");
+            }
+
+            saveTransactionServiceImpl.saveCreditCardTransaction(transaction,creditCard.getCustomer(),"WithdrawBalance");
+
 
             return ResponseEntity.status(HttpStatus.OK).body("Transaction completed");
         }
@@ -87,8 +124,15 @@ public class CardTransactionServiceImpl implements CardTransactionService {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Insufficient balance ");
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Object> debitCardTransaction(CardTransactionRequest transaction,String transactionType) throws IOException {
+
+        boolean cardNumberChecker = formatChecker.numberFormatChecker(transaction.getCardNumber());
+
+        if(!cardNumberChecker)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid card number type");
+
 
         DebitCard debitCard =debitCardRepository.findByCardNumber(transaction.getCardNumber());
 
@@ -106,20 +150,38 @@ public class CardTransactionServiceImpl implements CardTransactionService {
                 .get(depositAccount.getCurrencyType().toString());
 
 
+        AccountTransactionRequest request = new AccountTransactionRequest();
+        request.setAccountNumber(depositAccount.getAccountNumber());
+        request.setAmount(transaction.getAmount());
+
         if(transactionType.equals("WithdrawBalance")){
+
+
 
             if(depositAccount.getBalance()>=transaction.getAmount()){
 
                 Customer customer =depositAccount.getCustomer();
-                depositAccount.setBalance(depositAccount.getBalance()-transaction.getAmount());
-                customer.setAsset(customer.getAsset()-customerAsset);
-
-                customerRepository.save(customer);
-                depositAccountRepository.save(depositAccount);
 
 
-           CardTransaction cardTransaction = new CardTransaction(transaction.getAmount(),transactionType,new Timestamp(System.currentTimeMillis()),transaction.getCardNumber(),"DebitCard",debitCard.getDepositAccount().getCurrencyType().toString());
-           cardTransactionRepository.save(cardTransaction);
+                entityManager.lock(depositAccount,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+                entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+                entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+
+                try {
+
+                    Thread.sleep(5000);
+                    depositAccount.setBalance(depositAccount.getBalance()-transaction.getAmount());
+                    customer.setAsset(customer.getAsset()-customerAsset);
+
+                    customerRepository.save(customer);
+                    depositAccountRepository.save(depositAccount);
+
+                }catch (Exception e){
+                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account is busy");
+                }
+
+                saveTransactionServiceImpl.saveDebitCardTransaction(transaction,depositAccount,transactionType,currencyClass);
+                saveTransactionServiceImpl.saveBalanceOnAccount("WithdrawBalanceFromDebit",depositAccount,request);
 
 
                 return ResponseEntity.status(HttpStatus.OK).body("Withdraw balance transaction completed");
@@ -132,16 +194,29 @@ public class CardTransactionServiceImpl implements CardTransactionService {
         if(transactionType.equals("AddBalance")){
 
             Customer customer =depositAccount.getCustomer();
-            depositAccount.setBalance(depositAccount.getBalance()+transaction.getAmount());
-            customer.setAsset(customer.getAsset()+customerAsset);
 
-            customerRepository.save(customer);
-            depositAccountRepository.save(depositAccount);
+            entityManager.lock(depositAccount,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+            entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+            entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+
+            try {
+
+                Thread.sleep(5000);
+
+                depositAccount.setBalance(depositAccount.getBalance()+transaction.getAmount());
+                customer.setAsset(customer.getAsset()+customerAsset);
+
+                customerRepository.save(customer);
+                depositAccountRepository.save(depositAccount);
 
 
-            CardTransaction cardTransaction = new CardTransaction(transaction.getAmount(),transactionType,new Timestamp(System.currentTimeMillis()),transaction.getCardNumber(),"DebitCard",debitCard.getDepositAccount().getCurrencyType().toString());
-            cardTransaction.setCustomer(debitCard.getDepositAccount().getCustomer());
-            cardTransactionRepository.save(cardTransaction);
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account is busy");
+            }
+
+
+            saveTransactionServiceImpl.saveDebitCardTransaction(transaction,depositAccount,transactionType,currencyClass);
+            saveTransactionServiceImpl.saveBalanceOnAccount("AddBalanceFromDebit",depositAccount,request);
 
 
             return ResponseEntity.status(HttpStatus.OK).body("Add balance transaction completed");
@@ -150,8 +225,19 @@ public class CardTransactionServiceImpl implements CardTransactionService {
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout");
     }
 
+    @Transactional
     @Override
     public <T extends Account> ResponseEntity<Object> debtOnCard(T a, DebtOnCardRequest request) throws IOException {
+
+        boolean creditCardNumberChecker = formatChecker.numberFormatChecker(request.getCreditCardNumber());
+        boolean debitCardNumberChecker = formatChecker.numberFormatChecker(request.getCardNumber());
+
+        if(!creditCardNumberChecker)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credit card number type");
+
+        if(!debitCardNumberChecker)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid debit card number type");
+
 
         Account account = null;
         AccountRepository accountRepository=null;
@@ -186,31 +272,87 @@ public class CardTransactionServiceImpl implements CardTransactionService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Insufficient balance");
         }
 
-        creditCard.setCurrentLimit(creditCard.getCurrentLimit()+request.getDebt());
 
-        account.setBalance(account.getBalance()- (request.getDebt()*currencyClass.getRates().get(account.getCurrencyType().toString())));
+        entityManager.lock(debitCard.getDepositAccount(),LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+        entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+        entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
-        customer.setAsset(customer.getAsset()-request.getDebt());
+        try {
 
-        accountRepository.save(account);
-        creditCardRepository.save(creditCard);
-        customerRepository.save(customer);
+            Thread.sleep(5000);
+
+            creditCard.setCurrentLimit(creditCard.getCurrentLimit()+request.getDebt());
+
+            account.setBalance(account.getBalance()- (request.getDebt()*currencyClass.getRates().get(account.getCurrencyType().toString())));
+
+            customer.setAsset(customer.getAsset()-request.getDebt());
+
+            accountRepository.save(account);
+            creditCardRepository.save(creditCard);
+            customerRepository.save(customer);
 
 
-      CardTransaction debitCardTransaction = new CardTransaction(request.getDebt(),"DebtPayment",new Timestamp(System.currentTimeMillis()),debitCard.getCardNumber(),"DebitCard",debitCard.getDepositAccount().getCurrencyType().toString());
-      debitCardTransaction.setCustomer(account.getCustomer());
-      cardTransactionRepository.save(debitCardTransaction);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Account is busy");
+        }
 
-      CardTransaction creditCardTransaction = new CardTransaction(request.getDebt()/currencyClass.getRates().get(account.getCurrencyType().toString()),"DebtPayment",new Timestamp(System.currentTimeMillis()),debitCard.getCardNumber(),"CreditCard","TRY");
-      creditCardTransaction.setCustomer(account.getCustomer());
-      cardTransactionRepository.save(creditCardTransaction);
+        double accountAmount=currencyClass.getRates().get(account.getCurrencyType().toString())*request.getDebt();
 
+
+
+        CardTransactionRequest debitCardTransaction = new CardTransactionRequest();
+        debitCardTransaction.setCardNumber(request.getCardNumber());
+        debitCardTransaction.setAmount(request.getDebt());
+
+        saveTransactionServiceImpl.saveDebitCardTransaction(debitCardTransaction,debitCard.getDepositAccount(),"DebtPayment",currencyClass);
+
+
+        AccountTransactionRequest accountTransactionRequest = new AccountTransactionRequest();
+        accountTransactionRequest.setAccountNumber(debitCard.getDepositAccount().getAccountNumber());
+        accountTransactionRequest.setAmount(accountAmount);
+
+        saveTransactionServiceImpl.saveBalanceOnAccount("DebtPaymentFromDebit",account,accountTransactionRequest);
+
+        CardTransactionRequest creditCardTransaction = new CardTransactionRequest();
+        creditCardTransaction.setCardNumber(request.getCreditCardNumber());
+        creditCardTransaction.setAmount(request.getDebt());
+        saveTransactionServiceImpl.saveCreditCardTransaction(creditCardTransaction,customer,"DebtPayment");
 
         return ResponseEntity.status(HttpStatus.OK).body("Credit card debt amounting to "+request.getDebt()+" TL has been paid");
 
     }
 
+    @Override
+    public <T extends Card> List<CardTransaction> findByDateBetweenAndCardNo(T a, TransactionDate date, String cardNo) throws Exception {
 
+        Card card = null;
+
+        if(a instanceof CreditCard)
+            card = creditCardRepository.findByCardNumber(cardNo);
+
+        if(a instanceof DebitCard)
+            card =debitCardRepository.findByCardNumber(cardNo);
+
+        if(a==null)
+            throw new Exception("Card not found");
+
+        String startYear=date.getStartYear() ;
+        String startMonth=date.getStartMonth();
+        String startDay=date.getStartDay();
+
+        String endYear=date.getEndYear();
+        String endMonth =date.getEndMonth();
+        String endDay =date.getEndDay();
+
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date startDate = dateFormat.parse(startYear+"-"+startMonth+"-"+startDay);
+        Date endDate = dateFormat.parse(endYear+"-"+endMonth+"-"+endDay);
+
+        return cardTransactionRepository.findByDateBetweenAndCardNo(startDate,endDate,cardNo);
+
+    }
 
 
 }

@@ -9,6 +9,7 @@ import org.kodluyoruz.mybank.entity.Customer;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 
 @Entity
 @Getter
@@ -24,5 +25,6 @@ public class CreditCard extends Card{
     @ManyToOne
     @JsonIgnore
     private Customer customer;
+
 
 }

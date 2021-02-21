@@ -24,6 +24,7 @@ public class CustomerController {
     public ResponseEntity<Object> create(@RequestBody CreateCustomerRequest request) throws Exception {
         return customerService.create(request);
     }
+
     @GetMapping("/listAll")
     public List<Customer> listAll(){
         return customerService.findAll();

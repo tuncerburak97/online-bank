@@ -20,6 +20,7 @@ public abstract class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private long transactionId;
 
     @ManyToOne

@@ -3,8 +3,10 @@ package org.kodluyoruz.mybank.service.impl.account;
 
 import org.kodluyoruz.mybank.entity.account.DepositAccount;
 import org.kodluyoruz.mybank.entity.account.SavingAccount;
-import org.kodluyoruz.mybank.request.CreateAccountRequest;
+import org.kodluyoruz.mybank.entity.transaction.AccountTransaction;
+import org.kodluyoruz.mybank.request.account.CreateAccountRequest;
 import org.kodluyoruz.mybank.request.transaction.AccountTransactionRequest;
+import org.kodluyoruz.mybank.request.transaction.TransactionDate;
 import org.kodluyoruz.mybank.request.transaction.TransferTransactionRequest;
 import org.kodluyoruz.mybank.service.account.AccountService;
 import org.kodluyoruz.mybank.service.account.DepositAccountService;
@@ -13,6 +15,7 @@ import org.kodluyoruz.mybank.service.transaction.TransferTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.util.*;
 
 import java.io.IOException;
 
@@ -37,7 +40,7 @@ public class DepositAccountServiceImpl implements DepositAccountService {
     }
 
     @Override
-    public ResponseEntity<Object> createAccount(CreateAccountRequest request){
+    public ResponseEntity<Object> createAccount(CreateAccountRequest request) throws IOException {
         DepositAccount depositAccount = new DepositAccount();
         return accountService.createAccount(depositAccount,request);
     }
@@ -83,6 +86,12 @@ public class DepositAccountServiceImpl implements DepositAccountService {
         DepositAccount depositAccount = new DepositAccount();
         return accountService.deleteAccount(depositAccount,accountNumber);
 
+    }
+
+    public List<AccountTransaction> findTransaction(TransactionDate date,String accountNumber) throws Exception {
+
+        DepositAccount depositAccount = new DepositAccount();
+        return accountTransactionService.findAccountTransactionByDateAndAccountNumber(depositAccount,date,accountNumber);
     }
 
 

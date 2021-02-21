@@ -27,7 +27,12 @@ public abstract class Account {
     private String ibanNo;
 
 
+
+
     private double balance;
+
+    @Version
+    private long version;
 
     @Enumerated(EnumType.STRING)
     private CurrencyType currencyType;
