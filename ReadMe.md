@@ -1210,7 +1210,7 @@ Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüz�
 
 - Deposit Account Controller
 
-![swagger_3](https://user-images.githubusercontent.com/33039466/109560848-67aa8b80-7aed-11eb-9aac-aad036c0f683.PNG)
+![deposit_last](https://user-images.githubusercontent.com/33039466/109561471-4302e380-7aee-11eb-81a4-1c9eedb4a9fa.PNG)
 
 - Saving Account Controller
 
@@ -1222,7 +1222,7 @@ Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüz�
 
 - Debit Card Controller
 
-![swagger_6](https://user-images.githubusercontent.com/33039466/109560097-86f4e900-7aec-11eb-9f63-b02c606379db.PNG)
+![debit_kart](https://user-images.githubusercontent.com/33039466/109561514-51e99600-7aee-11eb-84d0-0692e3e36a6f.PNG)
 
 ### Örnekler
 
