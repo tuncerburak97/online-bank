@@ -1210,19 +1210,19 @@ Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüz�
 
 - Deposit Account Controller
 
-![saving_swagger](https://user-images.githubusercontent.com/33039466/109560194-a1c75d80-7aec-11eb-8f7f-149065a10c27.PNG)
+![swagger_3](https://user-images.githubusercontent.com/33039466/109560848-67aa8b80-7aed-11eb-9aac-aad036c0f683.PNG)
 
 - Saving Account Controller
 
-![saving_swagger](saving_swagger.PNG)
+![saving_swagger](https://user-images.githubusercontent.com/33039466/109560194-a1c75d80-7aec-11eb-8f7f-149065a10c27.PNG)
 
 - Credit Card Controller
 
-![swagger_5](107887956-d814b280-6f1a-11eb-8cfe-fcde7a2392cb.PNG)
+![credit_last](https://user-images.githubusercontent.com/33039466/109561213-e9021e00-7aed-11eb-88fd-52af8a5937a3.PNG)
 
 - Debit Card Controller
 
-![swagger_6](107887957-d8ad4900-6f1a-11eb-94ec-4a2b3f892fab.PNG)
+![swagger_6](https://user-images.githubusercontent.com/33039466/109560097-86f4e900-7aec-11eb-9f63-b02c606379db.PNG)
 
 ### Örnekler
 
@@ -1230,29 +1230,29 @@ Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüz�
 
 - Örnek 1:Müşteri oluşturma
 
-![swagger_7](107887958-d8ad4900-6f1a-11eb-869f-830295434e2b.PNG)
+![swagger_7](https://user-images.githubusercontent.com/33039466/109560099-878d7f80-7aec-11eb-812f-7d33d0c9a664.PNG)
 
 - Örnek 2:Müşteri listeleme
 
-![swagger_8](107887959-d945df80-6f1a-11eb-9b43-ad387d048c34.PNG)
+![swagger_8](https://user-images.githubusercontent.com/33039466/109560101-878d7f80-7aec-11eb-9d72-19ac2e35ff30.PNG)
 
-![swagger_9](107887960-d945df80-6f1a-11eb-94d3-9131fad66249.PNG)
+![swagger_9](https://user-images.githubusercontent.com/33039466/109560102-878d7f80-7aec-11eb-83ab-a2468bdba577.PNG)
 
 - Örnek 3:Kredi kartı oluşturma
 
-![swagger_10](107887961-d9de7600-6f1a-11eb-8448-71075d72808c.PNG)
+![swagger_10](https://user-images.githubusercontent.com/33039466/109560105-88261600-7aec-11eb-86e7-7caf93eda6ea.PNG)
 
-![swagger_11](107887962-d9de7600-6f1a-11eb-92c5-1a422cfbf743.PNG)
+![swagger_11](https://user-images.githubusercontent.com/33039466/109560107-88261600-7aec-11eb-9153-08cf2197c64f.PNG)
 
 - Örnek 4:Hesaba,hesap numarası aracılığı ile para ekleme
 
-![swagger_12](107887963-da770c80-6f1a-11eb-9c76-3c55f06005df.PNG)
+![swagger_12](https://user-images.githubusercontent.com/33039466/109560110-88beac80-7aec-11eb-9985-2648d1d71729.PNG)
 
 - Örnek 5:Müşteri hesapları görüntüleme
 
-![swagger_13](107887964-da770c80-6f1a-11eb-80fa-e681d5cb16de.PNG)
+![swagger_13](https://user-images.githubusercontent.com/33039466/109560112-88beac80-7aec-11eb-8b9e-c7b44754990c.PNG)
 
 - Örnek 6:Hatalı e-mail tipi ile kayıt olma
 
-![swagger_14](107887965-da770c80-6f1a-11eb-9d00-2848e5212992.PNG)
+![swagger_14](https://user-images.githubusercontent.com/33039466/109560113-89574300-7aec-11eb-95f6-5eda95f26039.PNG)
 
