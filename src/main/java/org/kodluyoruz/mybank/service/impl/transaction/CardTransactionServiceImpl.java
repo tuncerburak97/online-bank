@@ -170,8 +170,8 @@ public class CardTransactionServiceImpl implements CardTransactionService {
                 Customer customer =depositAccount.getCustomer();
 
                 entityManager.lock(depositAccount,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-                entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-                entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+            //    entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+            //    entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
                 try {
 
@@ -201,8 +201,8 @@ public class CardTransactionServiceImpl implements CardTransactionService {
             Customer customer =depositAccount.getCustomer();
 
             entityManager.lock(depositAccount,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-            entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-            entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+         //   entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+        //    entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
             try {
 
@@ -267,8 +267,8 @@ public class CardTransactionServiceImpl implements CardTransactionService {
         }
 
         entityManager.lock(debitCard.getDepositAccount(),LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-        entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-        entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+      //  entityManager.lock(debitCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+      //  entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
         try {
 

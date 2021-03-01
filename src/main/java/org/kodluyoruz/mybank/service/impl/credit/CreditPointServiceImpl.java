@@ -14,7 +14,7 @@ public class CreditPointServiceImpl {
     private CreditPointRepository creditPointRepository;
 
 
-    @PostConstruct
+    //@PostConstruct
     public void createCreditPointTable(){
 
         CreditPoint firstRank = new CreditPoint();

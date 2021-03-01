@@ -150,8 +150,6 @@ public class SaveTransactionServiceImpl implements SaveTransactionService {
         accountTransaction.setCustomer(account.getCustomer());
         accountTransactionRepository.save(accountTransaction);
 
-
-
     }
 
     @Override

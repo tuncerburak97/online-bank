@@ -18,6 +18,7 @@ import org.kodluyoruz.mybank.service.account.SavingAccountService;
 import org.kodluyoruz.mybank.service.currency.CurrencyService;
 import org.kodluyoruz.mybank.service.impl.interest.DailyInterestServiceImpl;
 import org.kodluyoruz.mybank.service.transaction.AccountTransactionService;
+import org.kodluyoruz.mybank.service.transaction.SaveTransactionService;
 import org.kodluyoruz.mybank.service.transaction.TransferTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,9 @@ public class SavingAccountServiceImpl implements SavingAccountService {
 
     @Autowired
     private CurrencyService currencyService;
+
+    @Autowired
+    private SaveTransactionService saveTransactionService;
 
 
     public SavingAccountServiceImpl(AccountService accountService, AccountTransactionService accountTransactionService, TransferTransactionService transactionService) {
@@ -112,8 +116,8 @@ public class SavingAccountServiceImpl implements SavingAccountService {
         return accountTransactionService.withDrawAllMoney(savingAccount,accountNumber);
 
     }
-
-    //@Scheduled(cron = "*/10 * * * * *")
+    //@Scheduled(cron = "*/1 * * * * *")
+    @Scheduled(cron="0 0 0 * * ?")
     public void savingAccountInterestChecker() throws IOException {
 
         List<Account> savingAccounts=savingAccountRepository.findByAccountType("SavingAccount");
@@ -136,13 +140,24 @@ public class SavingAccountServiceImpl implements SavingAccountService {
 
                     double addBalance=dailyInterestService.interestCalculator(savingAccount.getCurrencyType().toString(),savingAccount.getStarterBalance(),savingAccount.getDay());
 
+                    AccountTransactionRequest request = new AccountTransactionRequest();
+                    request.setAccountNumber(savingAccount.getAccountNumber());
+                    request.setAmount(addBalance);
 
 
                     savingAccount.setBalance(savingAccount.getBalance()+addBalance);
                     currencyService.setCustomerAsset(addBalance,savingAccount,"AddBalance");
+                    saveTransactionService.saveBalanceOnAccount("AddBalanceFromSavingInterest",savingAccount,request);
 
                     savingAccountRepository.save(savingAccount);
-                } }
+                }
+                else{
+
+                   savingAccountRepository.save(savingAccount);
+                }
+
+
+            }
         }
     }
 }

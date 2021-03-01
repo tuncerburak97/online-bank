@@ -104,8 +104,8 @@ public class TransferTransactionServiceImpl implements TransferTransactionServic
 
             entityManager.lock(senderAccount, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
             entityManager.lock(receiverAccount,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-            entityManager.lock(senderCustomer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-            entityManager.lock(receiverCustomer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+       //     entityManager.lock(senderCustomer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+       //     entityManager.lock(receiverCustomer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
             try {
 

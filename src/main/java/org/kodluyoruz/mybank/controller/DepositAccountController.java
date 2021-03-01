@@ -45,7 +45,7 @@ public class DepositAccountController {
         }catch (Exception e){
 
 
-            return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
+           return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
         }
     }
 
@@ -56,7 +56,7 @@ public class DepositAccountController {
         }catch (Exception e){
 
 
-           return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
+            return ResponseEntity.status(HttpStatus.LOCKED).body("Deposit account already used in another transaction");
         }
     }
 

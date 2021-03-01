@@ -30,7 +30,7 @@ public class DailyInterestServiceImpl implements DailyInterestService {
     }
 
 
-    @PostConstruct
+    // @PostConstruct
     public ResponseEntity<Object> createRates(){
 
         DailyInterest dailyTryRates = new DailyInterest();

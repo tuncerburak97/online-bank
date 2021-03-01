@@ -1,6 +1,7 @@
 package org.kodluyoruz.mybank.service.impl.transaction;
 
 
+import java.lang.management.LockInfo;
 import java.text.DateFormat;
 import java.util.*;
 import org.kodluyoruz.mybank.checker.FormatChecker;
@@ -52,6 +53,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
     @Autowired
     private AccountTypeHelper accountTypeHelper;
 
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -61,7 +63,6 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
     @Transactional
     @Override
     public <T extends Account> ResponseEntity<Object> balanceOnAccount(T a, String transactionType, AccountTransactionRequest request) throws IOException {
-
 
         boolean accountNumberCheck=formatChecker.numberFormatChecker(request.getAccountNumber());
 
@@ -78,7 +79,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 
 
             entityManager.lock(account,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-            entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+        //    entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
             try {
 
@@ -103,7 +104,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 
 
                 entityManager.lock(account,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-                entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+          //      entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
                 try {
 
@@ -170,7 +171,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 
         entityManager.lock(creditCard,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
         entityManager.lock(account,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-        entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+     //   entityManager.lock(customer,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
         try {
 
@@ -241,9 +242,8 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 
         double currentMoney=account.getBalance();
 
-
         entityManager.lock(account,LockModeType.PESSIMISTIC_FORCE_INCREMENT);
-        entityManager.lock(account.getCustomer(),LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+      //  entityManager.lock(account.getCustomer(),LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
         try {
 
