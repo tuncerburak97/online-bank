@@ -2,7 +2,7 @@
 
 ![money_transfer](money_transfer.jpg)
 
-Bu proji kapsamında bir online bankacılık sisteminin backend servisleri yazılmıştır. Proje kapsamında beklenen minimum fonksiyonlar ve teknik ihtiyaçlar aşağıda listelenmiştir.
+Bu proje kapsamında bir online bankacılık sisteminin backend servisleri yazılmıştır. Proje kapsamında beklenen minimum fonksiyonlar ve teknik ihtiyaçlar aşağıda listelenmiştir.
 
 ## Beklenen fonksiyonlar
 
