@@ -1,6 +1,6 @@
 # Online Bankacılık Sistemi
 
-![money_transfer](money_transfer.jpg)
+![money_transfer](https://user-images.githubusercontent.com/33039466/109560385-de935480-7aec-11eb-8e37-29500775d043.jpg)
 
 Bu proje kapsamında bir online bankacılık sisteminin backend servisleri yazılmıştır. Proje kapsamında beklenen minimum fonksiyonlar ve teknik ihtiyaçlar aşağıda listelenmiştir.
 
@@ -70,7 +70,7 @@ işlemleri Java programlama dili 8 versiyonunda ve OOP prensipleri doğrultusund
 
 Uygulamanın ilk adımı olarak entity sınıfları oluşturulmuş ve aralarındaki ilişki tanımlanmıştır.Bu sınıfların ER diyagramı aşağıda görmekteyiz.
 
-![Banking_System_Mysql](Banking_System_Mysql.png)
+![Banking_System_Mysql](https://user-images.githubusercontent.com/33039466/109560157-92481480-7aec-11eb-9cbf-b3fe04d57b92.png)
 
 ​		Uygulamamızın entity sınıflarının oluşturulma sırası aşağıdaki gibidir.
 
@@ -1200,16 +1200,17 @@ public void saveTransferTransaction(TransferTransactionRequest request,Account s
 
 Controllerımız api ile haberleşme yaptığımız kısımdır.Swagger arayüzü ile oluşturulan controllerlarımıza göz atalım.
 
-![swagger_1](107887947-c29f8880-6f1a-11eb-80f8-c20df673714b.PNG)
+![swagger_1](https://user-images.githubusercontent.com/33039466/109560116-89574300-7aec-11eb-8f8c-4c723af5997c.PNG)
 
 - 5 adet controllerımız mevcuttur.
+
 - Customer Controller
 
-![swagger_2](107887949-cc28f080-6f1a-11eb-9c1f-316b7b18a074.PNG)
+![swagger_2](https://user-images.githubusercontent.com/33039466/109560118-89574300-7aec-11eb-8008-6a7859aa18c5.PNG)
 
 - Deposit Account Controller
 
-![swagger_3](107887953-d77c1c00-6f1a-11eb-8d08-052767cce6c0.PNG)
+![saving_swagger](https://user-images.githubusercontent.com/33039466/109560194-a1c75d80-7aec-11eb-8f7f-149065a10c27.PNG)
 
 - Saving Account Controller
 
